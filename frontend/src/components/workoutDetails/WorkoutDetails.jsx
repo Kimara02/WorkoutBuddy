@@ -53,16 +53,28 @@ import React from "react";
 import { FaDumbbell, FaCalendarAlt } from "react-icons/fa"; // Icons for load and date
 import { MdFitnessCenter, MdDelete } from "react-icons/md"; // Icons for workout name and delete
 import { BiDetail } from "react-icons/bi"; // Icon for description
-import { toast } from "react-hot-toast";
+
 import { useWorkoutsContext } from "../../Hooks/UseWorkoutContext";
+import { useAuthContext } from "../../Hooks/UseAuthContext";
+// import {toast} from "react-toastify";
+import {toast} from "react-toastify";
+
 
 const WorkoutDetails = ({ workout }) => {
   const { dispatch } = useWorkoutsContext();
+  const {user} = useAuthContext();
 
   const handleClick = async () => {
+    if (!user) {
+      toast.error("Please login to delete the workout");
+      return;
+    }
     const response = await fetch(`http://localhost:4000/api/kimara/${workout._id}`, {
       method: "DELETE",
-      'Authorization':`Bearer ${user.token}`,
+      headers: {
+        Authorization: `Bearer ${user.token}`, // Send the token in the headers
+      },
+      // 'Authorization':`Bearer ${user.token}`,
     });
 
     if (!response.ok) {
@@ -71,7 +83,8 @@ const WorkoutDetails = ({ workout }) => {
     }
 
     dispatch({ type: "DELETE_WORKOUT", payload: { _id: workout._id } });
-    toast.success("Workout deleted successfully! 🗑️");
+    // toast.success("Workout deleted successfully! 🗑️");
+    toast.success("Workout is deleted successfully!");
   };
 
   // Format the date
